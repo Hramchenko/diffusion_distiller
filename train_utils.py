@@ -9,12 +9,14 @@ from moving_average import moving_average
 from strategies import *
 
 @torch.no_grad()
-def p_sample_loop(diffusion, noise, extra_args, device, eta=0, capture_every=1000, need_tqdm=True, clip_value=3):
+def p_sample_loop(diffusion, noise, extra_args, device, eta=0, samples_to_capture=-1, need_tqdm=True, clip_value=3):
     mode = diffusion.net_.training
     diffusion.net_.eval()
     img = noise
     imgs = []
     iter_ = reversed(range(diffusion.num_timesteps))
+    c_step = diffusion.num_timesteps/samples_to_capture
+    next_capture = c_step
     if need_tqdm:
         iter_ = tqdm(iter_)
     for i in iter_:
@@ -25,8 +27,9 @@ def p_sample_loop(diffusion, noise, extra_args, device, eta=0, capture_every=100
             eta=eta,
             clip_value=clip_value
         )
-        if i % capture_every == 0:
+        if diffusion.num_timesteps - i > next_capture:
             imgs.append(img)
+            next_capture += c_step
     imgs.append(img)
     diffusion.net_.train(mode)
     return imgs
@@ -41,10 +44,9 @@ def default_iter_callback(N, loss, last=False):
 
 
 def make_visualization_(diffusion, device, image_size, need_tqdm=False, eta=0, clip_value=1.2):
-    capture_every = max(diffusion.num_timesteps // 5, 1)
     extra_args = {}
     noise = torch.randn(image_size, device=device)
-    imgs = p_sample_loop(diffusion, noise, extra_args, "cuda", capture_every=capture_every, need_tqdm=need_tqdm, eta=eta, clip_value=clip_value)
+    imgs = p_sample_loop(diffusion, noise, extra_args, "cuda", samples_to_capture=5, need_tqdm=need_tqdm, eta=eta, clip_value=clip_value)
     images_ = []
     for images in imgs:
         images = images.split(1, dim=0)

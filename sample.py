@@ -18,7 +18,7 @@ def make_argument_parser():
     parser.add_argument("--diffusion", help="Diffusion model.", type=str, default="GaussianDiffusion")
     parser.add_argument("--time_scale", help="Diffusion time scale.", type=int, default=1)
     parser.add_argument("--eta", help="Amount of random noise on interation(recommended non-zero values only for not distilled model).", type=float, default=0)
-    parser.add_argument("--clip_value", help="Noise clipping value.", type=float, default=1.2)
+    parser.add_argument("--clipping_value", help="Noise clipping value.", type=float, default=1.2)
     return parser
 
 def sample_images(args, make_model):
@@ -45,7 +45,7 @@ def sample_images(args, make_model):
     image_size = deepcopy(teacher.image_size)
     image_size[0] = args.batch_size
 
-    img = make_visualization(teacher_diffusion, device, image_size, need_tqdm=True, eta=args.eta, clip_value=args.clip_value)
+    img = make_visualization(teacher_diffusion, device, image_size, need_tqdm=True, eta=args.eta, clip_value=args.clipping_value)
     if img.shape[2] == 1:
         img = img[:, :, 0]
     cv2.imwrite(args.out_file, img)

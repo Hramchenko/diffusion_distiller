@@ -1,5 +1,13 @@
-# diffusion_distiller
+# PyTorch Implementation of "Progressive Distillation for Fast Sampling of Diffusion Models(v-diffusion)"
+
 Unofficial PyTorch Implementation of [Progressive Distillation for Fast Sampling of Diffusion Models](https://openreview.net/forum?id=TIdIXIpzhoI)
+
+V-Diffusion is an algorithm that creates a new model capable of sampling images in 2^N fewer diffusion steps.
+
+![Results](./images/logo.jpg)
+
+## What's different from official paper?
+DDPM model was used without authors modification.
 
 ## Training
 
