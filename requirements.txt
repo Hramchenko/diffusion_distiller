@@ -1,0 +1,9 @@
+torch
+torchvision
+opencv-python
+matplotlib
+scipy
+tensorfn
+lmdb
+tensorboard
+matplotlib

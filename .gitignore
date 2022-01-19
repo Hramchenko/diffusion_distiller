@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+/checkpoints/**/*
+!/checkpoints/readme.txt
+.idea/
