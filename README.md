@@ -10,15 +10,14 @@ V-Diffusion is an algorithm that creates a new model capable of sampling images 
 DDPM model was used without authors modification.
 
 ## Images generation
-For images generation:
 
 Unpack pretrained [weights](https://cloud.mail.ru/public/mQGz/k1pNzg2ng) in the `checkpoints` folder.
 
-Sampling from original model(use `time_scale` parameter to specify the number of skipping steps):
+To sample from the original model(use `time_scale` parameter to specify the number of skipping steps) run:
 
 `!python ./sample.py --out_file ./images/celeba_original_ts128.png --module celeba_u --time_scale 1 --checkpoint ./checkpoints/celeba/original/checkpoint.pt --batch_size 1 --clipping_value 1.2`
 
-Sampling from distilled model:
+Sampling from the distilled model:
 
 `python ./sample.py --out_file ./images/celeba_u_6.png --module celeba_u --checkpoint ./checkpoints/celeba/base_6/checkpoint.pt --batch_size 1 --clipping_value 1.2` 
 
