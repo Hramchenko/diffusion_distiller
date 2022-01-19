@@ -17,7 +17,7 @@ def make_argument_parser():
     parser.add_argument("--batch_size", help="Batch size.", type=int, default=1)
     parser.add_argument("--diffusion", help="Diffusion model.", type=str, default="GaussianDiffusion")
     parser.add_argument("--time_scale", help="Diffusion time scale.", type=int, default=1)
-    parser.add_argument("--eta", help="Amount of random noise on interation(recommended non-zero values only for not distilled model).", type=int, default=0)
+    parser.add_argument("--eta", help="Amount of random noise on interation(recommended non-zero values only for not distilled model).", type=float, default=0)
     parser.add_argument("--clip_value", help="Noise clipping value.", type=float, default=1.2)
     return parser
 
