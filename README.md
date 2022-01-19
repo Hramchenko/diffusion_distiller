@@ -9,6 +9,14 @@ V-Diffusion is an algorithm that creates a new model capable of sampling images 
 ## What's different from official paper?
 DDPM model was used without authors modification.
 
+## Images generation
+For images generation:
+
+Unpack pretrained [weights](https://cloud.mail.ru/public/mQGz/k1pNzg2ng) in the `checkpoints` folder.
+
+Run `python ./sample.py --out_file ./images/celeba_u_6.png --module celeba_u --checkpoint ./checkpoints/celeba/base_6/checkpoint.pt --batch_size 1 --clipping_value 1.2` in the repository folder.
+
+
 ## Training
 
 _Don't afraid the artifacts like [this](./images/artifacts.png) during training the base model and the first stages of distillation. They are caused by the features of the image sampling algorithm and will not appear at later stages._ 
