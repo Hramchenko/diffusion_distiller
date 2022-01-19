@@ -13,9 +13,13 @@ DDPM model was used without authors modification.
 
 Unpack pretrained [weights](https://cloud.mail.ru/public/mQGz/k1pNzg2ng) in the `checkpoints` folder.
 
-To sample from the original model(use `time_scale` parameter to specify the number of skipping steps) run:
+To sample from the original model run:
 
 `!python ./sample.py --out_file ./images/celeba_original_ts128.png --module celeba_u --time_scale 1 --checkpoint ./checkpoints/celeba/original/checkpoint.pt --batch_size 1 --clipping_value 1.2`
+
+Using the parameter `time_scale`, you can specify the number of skipped steps. 
+
+Try different values of `clipping_value` to see how the image quality changes.  
 
 Sampling from the distilled model:
 
