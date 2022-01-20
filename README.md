@@ -8,6 +8,7 @@ V-Diffusion is an algorithm that creates a new model capable of sampling images 
 
 ## What's different from official paper?
 Rosanality DDPM images [sampler](https://github.com/rosinality/denoising-diffusion-pytorch) was used by default.
+
 DDPM model was used without authors modification.
 
 ## Images generation
