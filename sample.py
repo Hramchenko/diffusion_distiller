@@ -17,8 +17,9 @@ def make_argument_parser():
     parser.add_argument("--batch_size", help="Batch size.", type=int, default=1)
     parser.add_argument("--diffusion", help="Diffusion model.", type=str, default="GaussianDiffusion")
     parser.add_argument("--time_scale", help="Diffusion time scale.", type=int, default=1)
-    parser.add_argument("--eta", help="Amount of random noise on interation(recommended non-zero values only for not distilled model).", type=float, default=0)
+    parser.add_argument("--clipped_sampling", help="Use clipped sampling mode.", type=bool, default=False)
     parser.add_argument("--clipping_value", help="Noise clipping value.", type=float, default=1.2)
+    parser.add_argument("--eta", help="Amount of random noise in clipping sampling mode(recommended non-zero values only for not distilled model).", type=float, default=0)
     return parser
 
 def sample_images(args, make_model):
@@ -26,11 +27,14 @@ def sample_images(args, make_model):
 
     teacher_ema = make_model().to(device)
 
-    def make_diffusion(model, n_timestep, time_scale, device):
+    def make_diffusion(args, model, n_timestep, time_scale, device):
         betas = make_beta_schedule("cosine", cosine_s=8e-3, n_timestep=n_timestep).to(device)
         M = importlib.import_module("v_diffusion")
         D = getattr(M, args.diffusion)
-        return D(model, betas, time_scale=time_scale)
+        sampler = "ddpm"
+        if args.clipped_sampling:
+            sampler = "clipped"
+        return D(model, betas, time_scale=time_scale, sampler=sampler)
 
     teacher = make_model().to(device)
 
@@ -41,7 +45,7 @@ def sample_images(args, make_model):
     del ckpt
     print("Model loaded.")
 
-    teacher_diffusion = make_diffusion(teacher, n_timesteps, time_scale, device)
+    teacher_diffusion = make_diffusion(args, teacher, n_timesteps, time_scale, device)
     image_size = deepcopy(teacher.image_size)
     image_size[0] = args.batch_size
 

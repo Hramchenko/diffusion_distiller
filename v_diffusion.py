@@ -1,18 +1,20 @@
 import math
+
 import torch
-from torch import nn
 import torch.nn.functional as F
+
 
 def make_diffusion(model, n_timestep, time_scale, device):
     betas = make_beta_schedule("cosine", cosine_s=8e-3, n_timestep=n_timestep).to(device)
     return GaussianDiffusion(model, betas, time_scale=time_scale)
 
+
 def make_beta_schedule(
-    schedule, n_timestep, linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3
+        schedule, n_timestep, linear_start=1e-4, linear_end=2e-2, cosine_s=8e-3
 ):
     if schedule == "cosine":
         timesteps = (
-            torch.arange(n_timestep + 1, dtype=torch.float64) / n_timestep + cosine_s
+                torch.arange(n_timestep + 1, dtype=torch.float64) / n_timestep + cosine_s
         )
         alphas = timesteps / (1 + cosine_s) * math.pi / 2
         alphas = torch.cos(alphas).pow(2)
@@ -22,6 +24,7 @@ def make_beta_schedule(
     else:
         raise Exception()
     return betas
+
 
 def E_(input, t, shape):
     out = torch.gather(input, 0, t)
@@ -70,15 +73,15 @@ class GaussianDiffusion:
             self.p_sample = self.p_sample_clipped
 
     def inference(self, x, t, extra_args):
-        return self.net_(x, t*self.time_scale, **extra_args)
+        return self.net_(x, t * self.time_scale, **extra_args)
 
     def p_loss(self, x_0, t, extra_args, noise=None):
         if noise is None:
             noise = torch.randn_like(x_0)
         alpha_t, sigma_t = self.get_alpha_sigma(x_0, t)
-        z = alpha_t* x_0 + sigma_t * noise
+        z = alpha_t * x_0 + sigma_t * noise
         v_recon = self.inference(z.float(), t.float(), extra_args)
-        v = alpha_t*noise-sigma_t*x_0
+        v = alpha_t * noise - sigma_t * x_0
         return F.mse_loss(v_recon, v.float())
 
     def q_posterior(self, x_0, x_t, t):
@@ -91,7 +94,7 @@ class GaussianDiffusion:
     def p_mean_variance(self, x, t, extra_args, clip_denoised):
         v = self.inference(x.float(), t.float(), extra_args).double()
         alpha_t, sigma_t = self.get_alpha_sigma(x, t)
-        x_recon = alpha_t*x - sigma_t*v
+        x_recon = alpha_t * x - sigma_t * v
         if clip_denoised:
             x_recon = x_recon.clamp(min=-1, max=1)
         mean, var, log_var = self.q_posterior(x_recon, x, t)
@@ -112,7 +115,7 @@ class GaussianDiffusion:
         pred = (x * alpha - v * sigma)
         if clip_denoised:
             pred = pred.clip(-clip_value, clip_value)
-        eps = (x - alpha*pred)/sigma
+        eps = (x - alpha * pred) / sigma
         if clip_denoised:
             eps = eps.clip(-clip_value, clip_value)
 
@@ -167,16 +170,16 @@ class GaussianDiffusionDefault(GaussianDiffusion):
             alpha_s, sigma_s = student_diffusion.get_alpha_sigma(x, t // 2)
             alpha_1, sigma_1 = self.get_alpha_sigma(x, t)
             v = self.inference(z.float(), t.float() + 1, extra_args).double()
-            rec = (alpha*z - sigma*v).clip(-1, 1)
+            rec = (alpha * z - sigma * v).clip(-1, 1)
             z_1 = alpha_1 * rec + (sigma_1 / sigma) * (z - alpha * rec)
             v_1 = self.inference(z_1.float(), t.float(), extra_args).double()
-            x_2 = (alpha_1*z_1 - sigma_1*v_1).clip(-1, 1)
-            eps_2 = (z - alpha_s*x_2)/sigma_s
+            x_2 = (alpha_1 * z_1 - sigma_1 * v_1).clip(-1, 1)
+            eps_2 = (z - alpha_s * x_2) / sigma_s
             v_2 = alpha_s * eps_2 - sigma_s * x_2
             if self.gamma == 0:
                 w = 1
             else:
-                w = torch.pow(1 + alpha_s/sigma_s, self.gamma)
-        v = student_diffusion.net_(z.float(), t.float()*self.time_scale, **extra_args)
-        my_rec = (alpha_s*z - sigma_s*v).clip(-1, 1)
-        return F.mse_loss(w*v.float(), w*v_2.float())
+                w = torch.pow(1 + alpha_s / sigma_s, self.gamma)
+        v = student_diffusion.net_(z.float(), t.float() * self.time_scale, **extra_args)
+        my_rec = (alpha_s * z - sigma_s * v).clip(-1, 1)
+        return F.mse_loss(w * v.float(), w * v_2.float())
