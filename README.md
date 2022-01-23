@@ -38,7 +38,7 @@ Using the parameter `time_scale`, you can specify the number of skipped steps.
 
 To distillate an arbitrary diffusion model:
 1. Save pretrained checkpoint with command like: `torch.save({"G": model.state_dict(), "n_timesteps": num_timesteps, "time_scale": 1.0},`, where `G` should contain your model parameters, `n_timesteps` - number of model diffusion steps, and `time_scale` should be set to `1.0`.
-Note: it is assumed that the model uses DDPM cosine time schedule, otherwise you can retrain a model with this scheduler or modify `alphas` and `betas` in `GaussianDiffusion`.   
+Note: it is assumed that the model uses DDPM cosine time schedule and can predict `v` for example, using `x` and `eps`, otherwise you can retrain a model with `train.py` script.   
 2. Make a script like `celeba_u.py` with `make_model` - function that creates model and `make_dataset` - train dataset creator.
 Note: model should contain attribute `image_size = [1 C H W]` of generated images.
 3. Run `python ./distillate.py --module YOUR_MODULE --diffusion GaussianDiffusionDefault --name CHECKPOINTS_DIR --dname base_0 --base_checkpoint ./PATH/TO/CHECKPOINT.pt --batch_size 1 --num_workers 4 --num_iters 5000 --log_interval 10`.
