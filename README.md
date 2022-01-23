@@ -52,6 +52,10 @@ Like in standard training, algorithm sample data from the training set and add n
 but the target of distilled model is not to reconstruct the input data, but repeat the output of 
 basic model, which makes two denoise steps on the input image.
 
+Training in this mode is much easier than training DPM with a reduced number of steps due to the two tricks proposed in the article: 
+1. Denoising by the basic model is performed with the same `eps` for both steps, so only one output corresponds to one input, and not an infinite set as in the basic DDPM. 
+2. Instead of reconstructing `x` or `eps`, a special parameter `v = alpha_t*eps - sigma_t*x` is restored, which is more sensitive and allows model to get sharper images.
+
 Thus, the trained model repeats the behavior of the base model, only with the number of diffusion steps reduced by half.
 
 ## Training
