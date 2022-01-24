@@ -1,5 +1,7 @@
 # PyTorch Implementation of "Progressive Distillation for Fast Sampling of Diffusion Models(v-diffusion)"
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1L-SF60txSiskbzw9tFGpc8qB5R7AXEec?usp=sharing)
+
 Unofficial PyTorch Implementation of [Progressive Distillation for Fast Sampling of Diffusion Models](https://openreview.net/forum?id=TIdIXIpzhoI).
 
 Distiller makes diffusion models more efficient at sampling time with progressive approach. 
@@ -36,7 +38,7 @@ Using the parameter `time_scale`, you can specify the number of skipped steps.
 
 ## How to distillate your own diffusion model?
 
-To distillate an arbitrary diffusion model:
+To optimize an arbitrary diffusion model:
 1. Save pretrained checkpoint with command like: `torch.save({"G": model.state_dict(), "n_timesteps": num_timesteps, "time_scale": 1.0},`, where `G` should contain your model parameters, `n_timesteps` - number of model diffusion steps, and `time_scale` should be set to `1.0`.
 Note: it is assumed that the model uses DDPM cosine time schedule and can predict `v` for example, using `x` and `eps`, otherwise you can retrain a model with `train.py` script.   
 2. Make a script like `celeba_u.py` with `make_model` - function that creates model and `make_dataset` - train dataset creator.
