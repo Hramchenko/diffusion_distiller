@@ -56,6 +56,24 @@ def conv2d(
 
     return conv
 
+def conv3d(
+        in_channel,
+        out_channel,
+        kernel_size,
+        stride=1,
+        padding=0,
+        bias=True,
+        scale=1,
+        mode="fan_avg",
+):
+    conv = nn.Conv3d(
+        in_channel, out_channel, kernel_size, stride=stride, padding=padding, bias=bias
+    )
+    variance_scaling_init_(conv.weight, scale, mode=mode)
+    if bias:
+        nn.init.zeros_(conv.bias)
+    return conv
+
 
 def linear(in_channel, out_channel, scale=1, mode="fan_avg"):
     lin = nn.Linear(in_channel, out_channel)
@@ -78,7 +96,7 @@ class Upsample(nn.Sequential):
     def __init__(self, channel):
         layers = [
             nn.Upsample(scale_factor=2, mode="nearest"),
-            conv2d(channel, channel, 3, padding=1),
+            conv3d(channel, channel, 3, padding=1),
         ]
 
         super().__init__(*layers)
@@ -86,7 +104,7 @@ class Upsample(nn.Sequential):
 
 class Downsample(nn.Sequential):
     def __init__(self, channel):
-        layers = [conv2d(channel, channel, 3, stride=2, padding=1)]
+        layers = [conv3d(channel, channel, 3, stride=2, padding=1)]
 
         super().__init__(*layers)
 
@@ -109,7 +127,7 @@ class ResBlock(nn.Module):
 
         self.norm1 = nn.GroupNorm(group_norm, in_channel)
         self.activation1 = Swish()
-        self.conv1 = conv2d(in_channel, out_channel, 3, padding=1)
+        self.conv1 = conv3d(in_channel, out_channel, 3, padding=1)
 
         self.time = nn.Sequential(
             Swish(), linear(time_dim, time_out_dim, scale=time_scale)
@@ -118,10 +136,10 @@ class ResBlock(nn.Module):
         self.norm2 = nn.GroupNorm(group_norm, out_channel, affine=norm_affine)
         self.activation2 = Swish()
         self.dropout = nn.Dropout(dropout)
-        self.conv2 = conv2d(out_channel, out_channel, 3, padding=1, scale=1e-10)
+        self.conv2 = conv3d(out_channel, out_channel, 3, padding=1, scale=1e-10)
 
         if in_channel != out_channel:
-            self.skip = conv2d(in_channel, out_channel, 1)
+            self.skip = conv3d(in_channel, out_channel, 1)
 
         else:
             self.skip = None
@@ -154,8 +172,8 @@ class SelfAttention(nn.Module):
         self.n_head = n_head
 
         self.norm = nn.GroupNorm(group_norm, in_channel)
-        self.qkv = conv2d(in_channel, in_channel * 3, 1)
-        self.out = conv2d(in_channel, in_channel, 1, scale=1e-10)
+        self.qkv = conv3d(in_channel, in_channel * 3, 1)
+        self.out = conv3d(in_channel, in_channel, 1, scale=1e-10)
 
     def forward(self, input):
         batch, channel, height, width = input.shape
@@ -292,7 +310,7 @@ class UNet(nn.Module):
             linear(time_dim, time_dim),
         )
 
-        down_layers = [conv2d(in_channel * (fold ** 2), channel, 3, padding=1)]
+        down_layers = [conv3d(in_channel * (fold ** 2), channel, 3, padding=1)]
         feat_channels = [channel]
         in_channel = channel
         for i in range(n_block):
@@ -372,7 +390,7 @@ class UNet(nn.Module):
         self.out = nn.Sequential(
             nn.GroupNorm(group_norm, in_channel),
             Swish(),
-            conv2d(in_channel, 3 * (fold ** 2), 3, padding=1, scale=1e-10),
+            conv3d(in_channel, 3 * (fold ** 2), 3, padding=1, scale=1e-10),
         )
 
     def forward(self, input, time):
