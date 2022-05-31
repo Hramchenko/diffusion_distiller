@@ -35,9 +35,10 @@ def train_model(args, make_model, make_dataset):
     device = torch.device("cuda")
     train_dataset = test_dataset = InfinityDataset(make_dataset(), args.num_iters)
 
-    len(train_dataset), len(test_dataset)
+    print("Dataset Size>>>", len(train_dataset), len(test_dataset))
 
-    img, anno = train_dataset[0]
+    img = train_dataset[0]
+    print("Input shape>>>", img.shape)
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)

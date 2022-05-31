@@ -296,3 +296,4 @@ if __name__ == '__main__':
     )
     img = dataset[0]
     print(img.shape)
+    print(len(dataset))

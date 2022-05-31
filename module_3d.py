@@ -5,8 +5,8 @@ from torchvision.transforms import Compose, Lambda
 
 BASE_NUM_STEPS = 1024
 BASE_TIME_SCALE = 1
-inputfolder = "../../Datasets/Nii-Dataset/input/"
-targetfolder = "../../Datasets/Nii-Dataset/target/"
+inputfolder = "../Datasets/Nii-Dataset/input/"
+targetfolder = "../Datasets/Nii-Dataset/target/"
 
 transform = Compose([
     Lambda(lambda t: torch.tensor(t).float()),
